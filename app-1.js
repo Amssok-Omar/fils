@@ -1429,6 +1429,12 @@ $('#q').addEventListener('input',()=>clearTimeout(UI.pc));
 // the pop-up saves in its own window: when this one comes back, pick up those entries
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState!=='visible')return;let raw=null;try{raw=localStorage.getItem(KEY)}catch(e){}
   if(raw&&raw!==lastRaw){const s=load();if(s){S=s;render()}}pushToday()});
+// phone browsers (iPhone Safari above all) scroll the whole page up to show the typing box and don't always scroll back
+// when the keyboard closes, leaving a black gap; only .main scrolls in Fils, so put the page back at the top
+function unshift(){const vv=window.visualViewport,open=vv&&vv.height<innerHeight*.85;
+  if(!open&&(window.scrollY||document.documentElement.scrollTop||document.body.scrollTop))window.scrollTo(0,0)}
+(window.visualViewport||window).addEventListener('resize',()=>setTimeout(unshift,60));
+document.addEventListener('focusout',()=>setTimeout(()=>{if(!document.activeElement||!/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName))unshift()},120));
 // open the pop-up card on top of the tapped widget; if the keyboard would cover it, lift it just enough
 function anchorTo(w){const dpr=window.devicePixelRatio||1,c=$('#composer'),f=$('#form'),A=$('#app');
   const L=Math.max(8,w.left/dpr),R=Math.min(innerWidth-8,w.right/dpr),mid=(w.top+w.bottom)/2/dpr;if(!(R-L>120))return;
